@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/Surajsuthar01/demo-repo.git'
+                git branch: 'main', url: 'https://github.com/Surajsuthar01/surajlogistic.git'
             }
         }
         stage('Build Docker Image') {
