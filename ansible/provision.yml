@@ -1,0 +1,34 @@
+---
+- name: Deploy httpd Docker container
+  hosts: docker_host
+  become: yes
+  tasks:
+    - name: Copy Dockerfile and index.html to target machine
+      copy:
+        src: "{{ item }}"
+        dest: "/tmp/{{ item }}"
+      with_items:
+        - Dockerfile
+        - index.html
+
+    - name: Build the Docker image
+      docker_image:
+        name: my-httpd-image
+        source: build
+        build:
+          path: /tmp
+          dockerfile: /tmp/Dockerfile
+        tag: latest
+
+    - name: Stop and remove existing container
+      docker_container:
+        name: my-httpd-container
+        state: absent
+
+    - name: Run the httpd Docker container
+      docker_container:
+        name: my-httpd-container
+        image: my-httpd-image:latest
+        ports:
+          - "80:80"
+        state: started
