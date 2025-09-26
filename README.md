@@ -5,9 +5,8 @@ This project demonstrates **web design, containerization (Docker), and automatio
 
 ---
 
-## 📸 Website Preview  
+![Surajlogistic Preview](https://github.com/Surajsuthar01/surajlogistic/blob/main/surajlogistic.png?raw=true)
 
-![Surajlogistic Preview](readme-images/website-preview.png)  
 
 ---
 
