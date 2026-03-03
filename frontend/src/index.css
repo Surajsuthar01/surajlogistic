@@ -1,0 +1,141 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-size: 10px;
+        scroll-behavior: smooth;
+    }
+
+    body {
+        background-color: theme('colors.white');
+        color: theme('colors.onyx');
+        font-size: 1.6rem;
+        line-height: 1.7;
+        font-family: theme('fontFamily.rubik');
+    }
+
+    a,
+    img,
+    time,
+    span,
+    input,
+    button {
+        display: block;
+    }
+
+    img {
+        height: auto;
+    }
+
+    li {
+        list-style: none;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    input,
+    button {
+        background: none;
+        border: none;
+        font: inherit;
+    }
+
+    input {
+        width: 100%;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    :focus-visible {
+        outline-offset: 4px;
+    }
+
+    ::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background-color: theme('colors.cultured-2');
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background-color: hsl(0, 0%, 80%);
+        border: 2px solid theme('colors.cultured-2');
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background-color: hsl(0, 0%, 70%);
+    }
+}
+
+@layer components {
+    .logo {
+        @apply font-oswald text-white text-[3rem];
+    }
+
+    .container {
+        @apply px-[15px] mx-auto;
+    }
+
+    .section {
+        @apply py-[50px];
+    }
+
+    .btn {
+        @apply relative text-white bg-dark-orange max-w-max text-[1.4rem] tracking-[1px] py-[10px] px-[50px] pl-[15px];
+    }
+
+    .btn::before {
+        content: "";
+        @apply absolute top-1/2 right-[15px] w-[25px] h-[1px] bg-white transition-all duration-[0.25s];
+    }
+
+    .btn::after {
+        content: "";
+        @apply absolute -top-[6px] -right-[6px] -bottom-[6px] w-[20px] border-2 border-dark-orange -z-10 transition-all duration-[0.25s];
+    }
+
+    .btn:hover::before,
+    .btn:focus::before {
+        @apply w-[33px];
+    }
+
+    .btn:hover::after,
+    .btn:focus::after {
+        @apply w-[40px];
+    }
+
+    .section-subtitle {
+        @apply text-dark-orange uppercase text-[2rem] font-oswald font-semibold tracking-[3px] mb-[10px];
+    }
+
+    .h1,
+    .h2,
+    .h3 {
+        @apply font-oswald leading-[1.2] font-semibold;
+    }
+
+    .h1 {
+        @apply text-[4rem] uppercase;
+    }
+
+    .h2,
+    .h3 {
+        @apply text-prussian-blue;
+    }
+
+    .h2 {
+        @apply text-[3rem];
+    }
+
+    .h3 {
+        @apply text-[2.2rem];
+    }
+}
