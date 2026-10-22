@@ -1,0 +1,195 @@
+@import 'tailwindcss';
+
+/* Layout: a fixed left rail of modules, a working canvas, and the copilot as a right drawer.
+   Palette: mineral teal-grey ground, highway-teal routes, marigold ("Suraj", the sun) for the one accent. */
+:root {
+  --ground: #ecf1ef;
+  --panel: #ffffff;
+  --panel-2: #f4f7f6;
+  --ink: #10201d;
+  --muted: #586966;
+  --line: #d6dfdc;
+  --accent: #e9a100;
+  --accent-ink: #855300;
+  --accent-soft: #fcefd0;
+  --route: #0e7c70;
+  --route-soft: #d9efeb;
+  --good: #1c8150;
+  --good-soft: #dcf1e5;
+  --warn: #a8690a;
+  --warn-soft: #fbedd2;
+  --bad: #c2362b;
+  --bad-soft: #f9dfdb;
+  --map-grid: #dbe4e1;
+  --shadow: 0 1px 2px rgb(16 32 29 / 0.06), 0 4px 16px rgb(16 32 29 / 0.05);
+  --font-display: 'Baloo 2', 'Hind', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Hind', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --ground: #0c1513;
+    --panel: #13201d;
+    --panel-2: #182824;
+    --ink: #e5eeeb;
+    --muted: #93a6a1;
+    --line: #263834;
+    --accent: #f2b33d;
+    --accent-ink: #f5c463;
+    --accent-soft: #3a2e12;
+    --route: #3cc3b3;
+    --route-soft: #12332e;
+    --good: #4cc28a;
+    --good-soft: #143326;
+    --warn: #e8a93a;
+    --warn-soft: #3a2c10;
+    --bad: #f0705f;
+    --bad-soft: #3d1a16;
+    --map-grid: #1d2e2a;
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --ground: #0c1513;
+  --panel: #13201d;
+  --panel-2: #182824;
+  --ink: #e5eeeb;
+  --muted: #93a6a1;
+  --line: #263834;
+  --accent: #f2b33d;
+  --accent-ink: #f5c463;
+  --accent-soft: #3a2e12;
+  --route: #3cc3b3;
+  --route-soft: #12332e;
+  --good: #4cc28a;
+  --good-soft: #143326;
+  --warn: #e8a93a;
+  --warn-soft: #3a2c10;
+  --bad: #f0705f;
+  --bad-soft: #3d1a16;
+  --map-grid: #1d2e2a;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-route: var(--route);
+  --color-route-soft: var(--route-soft);
+  --color-good: var(--good);
+  --color-good-soft: var(--good-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  line-height: 1.15;
+  text-wrap: balance;
+  margin: 0;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.awb {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+table.data th {
+  text-align: left;
+  font-weight: 500;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+table.data td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+table.data tr:last-child td {
+  border-bottom: 0;
+}
+table.data tbody tr.clickable {
+  cursor: pointer;
+}
+table.data tbody tr.clickable:hover {
+  background: var(--panel-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Printable invoice and shipping label */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

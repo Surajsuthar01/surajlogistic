@@ -1,0 +1,48 @@
+# One command runs the whole platform:  docker compose up --build
+# Then open http://localhost:8080 and log in as admin@surajlogistic.in / demo1234
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: suraj
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-suraj-dev-password}
+      POSTGRES_DB: surajlogistic
+      TZ: Asia/Kolkata
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U suraj -d surajlogistic']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgres://suraj:${POSTGRES_PASSWORD:-suraj-dev-password}@db:5432/surajlogistic
+      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-long-random-string-of-32-chars}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
+      SEED_DEMO: ${SEED_DEMO:-1}
+      SIMULATE: ${SIMULATE:-1}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-haiku-5-5}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - '8080:80'
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  pgdata:

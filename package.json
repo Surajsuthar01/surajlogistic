@@ -1,0 +1,24 @@
+{
+  "name": "surajlogistic",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SurajLogistic — one platform for trucking, courier, freight marketplace and warehousing, with an AI control tower.",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev:api & npm run dev:web",
+    "dev:api": "npm run dev -w @suraj/api",
+    "dev:web": "npm run dev -w @suraj/web",
+    "build": "npm run build -w @suraj/web",
+    "build:demo": "npm run build:demo -w @suraj/web",
+    "test": "npm test -w @suraj/core && npm test -w @suraj/api",
+    "typecheck": "npm run typecheck -w @suraj/core && npm run typecheck -w @suraj/api && npm run typecheck -w @suraj/web",
+    "seed": "npm run seed -w @suraj/api",
+    "db:generate": "npm run db:generate -w @suraj/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
