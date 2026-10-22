@@ -109,10 +109,12 @@ export function NetworkMap({ vehicles = [], trips = [], facilities = [], height 
   // Label busy cities first, then big ones, skipping any that would sit on top of a label already placed.
   const labels = new Set<string>();
   const placed: { lat: number; lng: number }[] = [];
-  const minGap = (frame.maxLat - frame.minLat) / 28;
+  // A label needs about 18 px of height and 80 px of width on screen.
+  const latPerPx = (frame.maxLat - frame.minLat) / height;
+  const lngPerPx = (frame.maxLng - frame.minLng) / width;
   for (const c of [...cities].sort((a, b) => Number(active.has(b.name)) - Number(active.has(a.name)) || a.tier - b.tier)) {
     if (!active.has(c.name) && (compact || c.tier !== 1)) continue;
-    if (placed.some((p) => Math.abs(p.lat - c.lat) < minGap && Math.abs(p.lng - c.lng) < minGap * 3)) continue;
+    if (placed.some((p) => Math.abs(p.lat - c.lat) < 18 * latPerPx && Math.abs(p.lng - c.lng) < 80 * lngPerPx)) continue;
     labels.add(c.name);
     placed.push(c);
   }
@@ -152,17 +154,7 @@ export function NetworkMap({ vehicles = [], trips = [], facilities = [], height 
 
         {cities.map((c) => {
           const on = active.has(c.name);
-          const labelled = labels.has(c.name);
-          return (
-            <g key={c.name}>
-              <circle cx={x(c.lng)} cy={y(c.lat)} r={(on ? 3.5 : 2.2) * u} fill={on ? 'var(--ink)' : 'var(--muted)'} opacity={on ? 0.8 : 0.4} />
-              {labelled && (
-                <text x={x(c.lng) + 7 * u} y={y(c.lat) - 6 * u} fontSize={12.5 * u} fontWeight={on ? 600 : 400} fill={on ? 'var(--ink)' : 'var(--muted)'} style={{ paintOrder: 'stroke', stroke: 'var(--panel-2)', strokeWidth: 3.5 * u }}>
-                  {c.name}
-                </text>
-              )}
-            </g>
-          );
+          return <circle key={c.name} cx={x(c.lng)} cy={y(c.lat)} r={(on ? 3.5 : 2.2) * u} fill={on ? 'var(--ink)' : 'var(--muted)'} opacity={on ? 0.8 : 0.4} />;
         })}
 
         {trips.map((t) => {
@@ -205,6 +197,14 @@ export function NetworkMap({ vehicles = [], trips = [], facilities = [], height 
             </g>
           );
         })}
+        {/* City names go on top of lanes and trucks, with a halo so they stay readable. */}
+        {cities
+          .filter((c) => labels.has(c.name))
+          .map((c) => (
+            <text key={`l-${c.name}`} x={x(c.lng) + 7 * u} y={y(c.lat) - 6 * u} fontSize={12.5 * u} fontWeight={active.has(c.name) ? 600 : 400} fill={active.has(c.name) ? 'var(--ink)' : 'var(--muted)'} style={{ paintOrder: 'stroke', stroke: 'var(--panel-2)', strokeWidth: 3.5 * u }} pointerEvents="none">
+              {c.name}
+            </text>
+          ))}
         {hover && vehById.get(hover) && !compact && (
           <HoverTag x={x(vehById.get(hover)!.lng)} y={y(vehById.get(hover)!.lat)} text={`${vehById.get(hover)!.regNo} · ${vehById.get(hover)!.city}`} w={frame.W} u={u} />
         )}
