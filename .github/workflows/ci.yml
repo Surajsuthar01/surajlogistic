@@ -30,7 +30,7 @@ jobs:
       - name: Tests on embedded Postgres
         run: npm test
       - name: API tests on real PostgreSQL
-        run: npm test -w @suraj/api
+        run: npm test -w @suraj/backend
         env:
           TEST_DATABASE_URL: postgres://app:app@localhost:5432/suraj_test
       - run: npm run build
@@ -41,5 +41,7 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -f apps/api/Dockerfile -t surajlogistic-api .
-      - run: docker build -f apps/web/Dockerfile -t surajlogistic-web .
+      - run: docker build -f backend/Dockerfile -t surajlogistic-backend .
+      - run: docker build -f frontend/Dockerfile -t surajlogistic-frontend .
+      - name: Compose file is valid
+        run: printf 'POSTGRES_PASSWORD=ci\nJWT_SECRET=%s\n' "$(openssl rand -hex 32)" > .env && docker compose config --quiet

@@ -3,6 +3,7 @@ dist/
 dist-demo/
 .data/
 .env
+backups/
 *.log
 coverage/
 .DS_Store

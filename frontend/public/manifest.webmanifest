@@ -1,0 +1,23 @@
+{
+  "name": "Surajlogistic",
+  "short_name": "Suraj",
+  "description": "Trucks, parcels, load board and warehouse in one place. Driver app in Hindi.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#050608",
+  "theme_color": "#050608",
+  "lang": "en-IN",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "shortcuts": [
+    { "name": "Driver app", "url": "/driver" },
+    { "name": "Track a parcel", "url": "/track" },
+    { "name": "Book a shipment", "url": "/shipments/new" }
+  ]
+}

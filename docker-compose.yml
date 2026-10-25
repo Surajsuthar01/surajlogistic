@@ -1,11 +1,31 @@
-# One command runs the whole platform:  docker compose up --build
-# Then open http://localhost:8080 and log in as admin@surajlogistic.in / demo1234
+# Surajlogistic on one Linux server.
+#
+#   1. cp .env.example .env   and fill it in   (or run ./deploy/setup.sh, which does it for you)
+#   2. docker compose up -d --build
+#   3. open http://SERVER-IP:8080  and log in with ADMIN_EMAIL / ADMIN_PASSWORD from .env
+#
+# With a domain name and HTTPS: set DOMAIN and PUBLIC_URL=https://DOMAIN in .env, then
+#   docker compose --profile https up -d --build
+#
+# Three parts, each in its own container:
+#   db        PostgreSQL 16; the data lives in the "pgdata" volume and survives updates
+#   backend   the API (backend/); not reachable from outside, only through the frontend
+#   frontend  the website and apps (frontend/), served by nginx, which passes /api to the backend
+
+name: surajlogistic
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '5'
+
 services:
   db:
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: suraj
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-suraj-dev-password}
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env, letters and numbers only}'
       POSTGRES_DB: surajlogistic
       TZ: Asia/Kolkata
     volumes:
@@ -14,35 +34,80 @@ services:
       test: ['CMD-SHELL', 'pg_isready -U suraj -d surajlogistic']
       interval: 5s
       timeout: 5s
-      retries: 20
+      retries: 30
     restart: unless-stopped
+    logging: *logging
 
-  api:
+  backend:
     build:
       context: .
-      dockerfile: apps/api/Dockerfile
+      dockerfile: backend/Dockerfile
+    image: surajlogistic-backend:latest
     environment:
-      DATABASE_URL: postgres://suraj:${POSTGRES_PASSWORD:-suraj-dev-password}@db:5432/surajlogistic
-      JWT_SECRET: ${JWT_SECRET:-change-me-to-a-long-random-string-of-32-chars}
+      NODE_ENV: production
+      TZ: Asia/Kolkata
+      DATABASE_URL: postgres://suraj:${POSTGRES_PASSWORD}@db:5432/surajlogistic
+      JWT_SECRET: '${JWT_SECRET:?Set JWT_SECRET in .env, make one with openssl rand -hex 32}'
       PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
-      SEED_DEMO: ${SEED_DEMO:-1}
-      SIMULATE: ${SIMULATE:-1}
+      # The company and its first owner login, created on the very first start only.
+      COMPANY_NAME: ${COMPANY_NAME:-Suraj Logistic}
+      COMPANY_PHONE: ${COMPANY_PHONE:-}
+      COMPANY_CITY: ${COMPANY_CITY:-}
+      COMPANY_ADDRESS: ${COMPANY_ADDRESS:-}
+      COMPANY_GSTIN: ${COMPANY_GSTIN:-}
+      ADMIN_NAME: ${ADMIN_NAME:-Owner}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ADMIN_PHONE: ${ADMIN_PHONE:-}
+      PUBLIC_ORG_SLUG: ${PUBLIC_ORG_SLUG:-}
+      ALLOW_COMPANY_SIGNUP: ${ALLOW_COMPANY_SIGNUP:-}
+      SEED_DEMO: ${SEED_DEMO:-0}
+      SIMULATE: ${SIMULATE:-}
+      # The frontend's nginx sits in front: trust one hop for visitor addresses (login limits).
+      TRUST_PROXY: '1'
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-haiku-5-5}
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+    logging: *logging
 
-  web:
+  frontend:
     build:
       context: .
-      dockerfile: apps/web/Dockerfile
+      dockerfile: frontend/Dockerfile
+    image: surajlogistic-frontend:latest
+    environment:
+      BACKEND_URL: http://backend:4000
     ports:
-      - '8080:80'
+      - '${HTTP_PORT:-8080}:80'
     depends_on:
-      - api
+      backend:
+        condition: service_healthy
     restart: unless-stopped
+    logging: *logging
+
+  # Optional: HTTPS with a free certificate for DOMAIN (needs ports 80 and 443 open).
+  https:
+    image: caddy:2-alpine
+    profiles: ['https']
+    environment:
+      DOMAIN: ${DOMAIN:-}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    restart: unless-stopped
+    logging: *logging
 
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:

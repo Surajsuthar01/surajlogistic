@@ -1,0 +1,732 @@
+@import 'tailwindcss';
+
+/*
+  SurajLogistic, "To every direction".
+  Night first: near-black ground, white type, one signal blue, hairlines instead of boxes.
+  Day mode is a clean white page with the same structure.
+  - One family everywhere: Inter with optical sizes. Large headings switch to its display
+    cut automatically (tighter, like Tesla's and OpenAI's sites); text stays the text cut.
+    Headings are set in sentence case, semibold, with tight spacing. No capitals blocks.
+  - Geist Mono only for codes: AWB numbers, trip numbers, keys.
+  - Hindi uses Anek Devanagari, mapped into Inter by Unicode range.
+  Yellow stays only where it is real: commercial number plates.
+*/
+
+/* ---------- Fonts (self-hosted, SIL Open Font License) ---------- */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('./assets/fonts/inter-latin-ext.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('./assets/fonts/inter-latin.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 800;
+  src: url('./assets/fonts/anek-devanagari.woff2') format('woff2-variations');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+25CC, U+A830-A839, U+A8E0-A8FF;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('./assets/fonts/geist-mono-latin.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---------- Tokens: day ---------- */
+:root {
+  --ground: #ffffff;
+  --sheet: #ffffff;
+  --sheet-2: #f4f4f6;
+  --ink: #0b0c0f;
+  --muted: #5d6069;
+  --faint: #9a9da6;
+  --line: #e7e7ea;
+  --line-strong: #d3d4d9;
+
+  --sign: #1f5eff;
+  --sign-deep: #1648d6;
+  --sign-ink: #ffffff;
+  --sign-soft: #ebf0ff;
+  --accent: #1a54e8;
+
+  --btn: #0b0c0f;
+  --btn-ink: #ffffff;
+  --btn-hover: #2a2c33;
+
+  --plate: #f6c700;
+  --plate-ink: #111111;
+  --plate-soft: #fff4c7;
+  --orange: #f07c00;
+
+  --go: #1f5eff;
+  --go-soft: #ebf0ff;
+  --warn: #b35c00;
+  --warn-fill: #ff9500;
+  --warn-soft: #fff1e0;
+  --bad: #d92d20;
+  --bad-soft: #fdecea;
+  --info: #6c46d8;
+  --info-soft: #f1ecff;
+
+  /* The map is a night screen in both modes. */
+  --map: #050608;
+  --map-2: #000000;
+  --map-grid: rgb(255 255 255 / 0.045);
+  --map-road: rgb(255 255 255 / 0.1);
+  --map-text: #f2f4f8;
+  --map-dim: #7b818f;
+  --map-land: rgb(255 255 255 / 0.16);
+  --map-go: #4d8bff;
+  --map-late: #ff5d52;
+  --map-idle: #ffb020;
+
+  --hover: rgb(11 12 15 / 0.035);
+  --shadow-sheet: 0 1px 2px rgb(11 12 15 / 0.04);
+  --shadow-pop: 0 1px 2px rgb(11 12 15 / 0.06), 0 24px 56px -16px rgb(11 12 15 / 0.24);
+  --font: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
+  --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+
+/* ---------- Tokens: night (the default) ----------
+   Our own attribute, so a host page that sets data-theme cannot flip the app half-way. */
+:root:not([data-sl-theme='light']) {
+  --ground: #050608;
+  --sheet: #0b0c10;
+  --sheet-2: #14161b;
+  --ink: #f3f4f6;
+  --muted: #9b9fa8;
+  --faint: #60646e;
+  --line: #1c1e24;
+  --line-strong: #2b2e36;
+  --sign: #2f6bff;
+  --sign-deep: #2459e8;
+  --sign-soft: #0f1a36;
+  --accent: #79a0ff;
+  --btn: #f3f4f6;
+  --btn-ink: #050608;
+  --btn-hover: #ffffff;
+  --plate: #f5c400;
+  --plate-soft: #2b2508;
+  --orange: #ff8a00;
+  --go: #4d8bff;
+  --go-soft: #0f1a36;
+  --warn: #ffb020;
+  --warn-fill: #ff9f1a;
+  --warn-soft: #2b1d08;
+  --bad: #ff5d52;
+  --bad-soft: #2e1212;
+  --info: #b49cff;
+  --info-soft: #1c1633;
+  --hover: rgb(255 255 255 / 0.03);
+  --shadow-sheet: none;
+  --shadow-pop: 0 0 0 1px rgb(255 255 255 / 0.06), 0 30px 80px -20px rgb(0 0 0 / 0.9);
+  color-scheme: dark;
+}
+
+@custom-variant dark (&:where(:root:not([data-sl-theme='light']) *));
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-sheet: var(--sheet);
+  --color-sheet-2: var(--sheet-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-sign: var(--sign);
+  --color-sign-deep: var(--sign-deep);
+  --color-sign-ink: var(--sign-ink);
+  --color-sign-soft: var(--sign-soft);
+  --color-accent: var(--accent);
+  --color-plate: var(--plate);
+  --color-plate-ink: var(--plate-ink);
+  --color-plate-soft: var(--plate-soft);
+  --color-orange: var(--orange);
+  --color-go: var(--go);
+  --color-go-soft: var(--go-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --font-sans: var(--font);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+}
+
+/*
+  Page base. Unlayered and written as `html body` on purpose: when the app is embedded
+  (the claude.ai viewer wraps pages in a reset that sets body { font: 14px system-ui;
+  background: #fff; color: #000 }), unlayered rules beat layered ones, so these win.
+*/
+html,
+html body,
+#root {
+  height: 100%;
+}
+html body {
+  margin: 0;
+  padding: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.55;
+  font-weight: 400;
+  letter-spacing: -0.011em;
+  font-feature-settings: 'cv11', 'ss03';
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+::selection {
+  background: color-mix(in srgb, var(--sign) 35%, transparent);
+}
+
+@layer base {
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  /* Titles: sentence case, semibold, tight. Inter's display cut takes over at large sizes. */
+  .t-title {
+    font-family: var(--font-display);
+    font-size: clamp(30px, 3.2vw, 44px);
+    font-weight: 600;
+    line-height: 1.06;
+    letter-spacing: -0.03em;
+  }
+  .t-head {
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .t-sub {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+  /* Small labels above a heading or a figure: quiet, sentence case. */
+  .eyebrow {
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    color: var(--muted);
+  }
+  /* Big figures. */
+  .t-fig {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+  .awb {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  .id-chip {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--sheet-2);
+    box-shadow: inset 0 0 0 1px var(--line-strong);
+    white-space: nowrap;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /* Surfaces: hairline cards, no drop shadow at night. */
+  .sheet {
+    background: var(--sheet);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow-sheet);
+  }
+
+  /* Buttons are pills. The main one is ink on paper: white at night, black by day. */
+  .btn-primary {
+    color: var(--btn-ink);
+    background: var(--btn);
+    font-weight: 560;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--btn-hover);
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .btn-accent {
+    color: #fff;
+    background: var(--sign);
+    font-weight: 560;
+    box-shadow: 0 8px 24px -10px color-mix(in srgb, var(--sign) 80%, transparent);
+  }
+  .btn-accent:hover:not(:disabled) {
+    background: var(--sign-deep);
+  }
+  .btn-secondary {
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    font-weight: 520;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: var(--hover);
+    border-color: var(--faint);
+  }
+  .btn-danger {
+    color: #fff;
+    background: var(--bad);
+    font-weight: 560;
+  }
+
+  /* Commercial vehicle number plate: yellow, black border, reflective sheen. */
+  .plate {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+    color: var(--plate-ink);
+    background: linear-gradient(172deg, #ffe774 0%, #f8cd12 42%, #ebb800 100%);
+    border: 1.5px solid #111;
+    border-radius: 4px;
+    padding: 0 0.42em;
+    height: 1.7em;
+    font-family: var(--font-display);
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.55);
+  }
+  .plate::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(112deg, transparent 40%, rgb(255 255 255 / 0.28) 47%, transparent 54%);
+    pointer-events: none;
+  }
+
+  /* The map: a black screen with a faint grid, always dark. */
+  .map-slab {
+    position: relative;
+    color: var(--map-text);
+    background:
+      radial-gradient(90% 70% at 50% 40%, rgb(77 139 255 / 0.07), transparent 70%),
+      linear-gradient(180deg, var(--map) 0%, var(--map-2) 100%);
+    border: 1px solid rgb(255 255 255 / 0.07);
+    border-radius: 20px;
+  }
+  .map-slab :focus-visible {
+    outline-color: #fff;
+  }
+
+  .scroll-x {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Tables: no header fill, mono column names, hairline rows. */
+  table.data {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 14.5px;
+  }
+  table.data th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    text-align: left;
+    font-family: var(--font);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: -0.005em;
+    color: var(--faint);
+    padding: 13px 16px 11px;
+    background: var(--sheet);
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  table.data th:first-child {
+    border-top-left-radius: 17px;
+  }
+  table.data th:last-child {
+    border-top-right-radius: 17px;
+  }
+  table.data td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  table.data tr:last-child td {
+    border-bottom: 0;
+  }
+  table.data tbody tr.clickable {
+    cursor: pointer;
+  }
+  table.data tbody tr.clickable:hover td {
+    background: var(--hover);
+  }
+  table.data.tight td {
+    padding: 10px 16px;
+  }
+
+  /* Headline numbers: telemetry columns split by hairlines. */
+  .stat-strip {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Share bars and chart columns. */
+  .bar-fill {
+    background: var(--sign);
+  }
+  .bar-col {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--sign) 70%, #ffffff), var(--sign));
+  }
+
+  /* Segmented tabs, OpenAI style. */
+  .seg {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--sheet-2);
+    border: 1px solid var(--line);
+  }
+  .seg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 520;
+    color: var(--muted);
+    transition: color 120ms, background-color 120ms;
+  }
+  .seg-btn:hover {
+    color: var(--ink);
+  }
+  .seg-btn[aria-selected='true'],
+  .seg-btn[aria-checked='true'] {
+    color: var(--ink);
+    background: var(--sheet);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12), inset 0 0 0 1px var(--line-strong);
+  }
+
+  /* ---------- Dynamic Island ---------- */
+  .island {
+    position: relative;
+    color: #f3f4f6;
+    background: rgb(8 9 12 / 0.82);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
+    border: 1px solid rgb(255 255 255 / 0.09);
+    box-shadow:
+      0 0 0 0.5px rgb(0 0 0 / 0.6),
+      0 18px 50px -18px rgb(0 0 0 / 0.75),
+      inset 0 1px 0 rgb(255 255 255 / 0.06);
+    border-radius: 28px;
+    transition:
+      border-radius 320ms cubic-bezier(0.32, 0.72, 0, 1),
+      width 320ms cubic-bezier(0.32, 0.72, 0, 1),
+      max-width 320ms cubic-bezier(0.32, 0.72, 0, 1),
+      transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .island-link {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 13px;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: rgb(243 244 246 / 0.62);
+    transition: color 160ms;
+  }
+  .island-link:hover {
+    color: #fff;
+  }
+  .island-link[aria-current='page'] {
+    color: #050608;
+  }
+  /* The website's island has no sliding pill: the open page is a soft white chip instead. */
+  .site-link[aria-current='page'] {
+    color: #fff;
+    background: rgb(255 255 255 / 0.12);
+  }
+  .island-pill {
+    position: absolute;
+    top: 50%;
+    height: 36px;
+    margin-top: -18px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    box-shadow: 0 4px 14px -4px rgb(255 255 255 / 0.35);
+    transition:
+      left 380ms cubic-bezier(0.32, 0.72, 0, 1),
+      width 380ms cubic-bezier(0.32, 0.72, 0, 1),
+      opacity 200ms;
+  }
+  .island-icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    color: rgb(243 244 246 / 0.72);
+    transition: color 120ms, background-color 120ms;
+  }
+  .island-icon:hover {
+    color: #fff;
+    background: rgb(255 255 255 / 0.08);
+  }
+  .island :focus-visible {
+    outline-color: #fff;
+  }
+}
+
+/* Live dot that breathes. */
+@keyframes sl-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 0%, transparent);
+  }
+}
+.live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: currentColor;
+  animation: sl-breathe 2.2s ease-in-out infinite;
+}
+
+@keyframes sl-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pop-in {
+  animation: sl-pop 180ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes sl-slide {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.slide-in {
+  animation: sl-slide 220ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes sl-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.island-drop {
+  animation: sl-drop 340ms cubic-bezier(0.32, 0.72, 0, 1);
+  transform-origin: top center;
+}
+@keyframes sl-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: sl-rise 600ms cubic-bezier(0.22, 0.8, 0.2, 1) both;
+}
+
+/* Copilot: a window that grows out of the island, a breathing orb, and typing dots. */
+@keyframes sl-window {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.965);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.window-in {
+  animation: sl-window 380ms cubic-bezier(0.32, 0.72, 0, 1);
+  transform-origin: top center;
+}
+.orb {
+  position: relative;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 32% 28%, rgb(255 255 255 / 0.85), transparent 30%),
+    radial-gradient(circle at 70% 75%, #ff8a3d 0%, transparent 46%),
+    conic-gradient(from 200deg, #2f6bff, #6aa1ff, #ff9a52, #2f6bff);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.12) inset,
+    0 10px 30px -10px rgb(47 107 255 / 0.75);
+}
+.orb.is-thinking {
+  animation: sl-orb 2.4s linear infinite;
+}
+@keyframes sl-orb {
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+.typing {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+.typing i {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--muted);
+  animation: sl-type 1.1s ease-in-out infinite;
+}
+.typing i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.typing i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes sl-type {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Printed documents: label, consignment note, invoice. */
+.paper {
+  background: #fff;
+  color: #111;
+  --ink: #111;
+  --muted: #555;
+  --faint: #777;
+  --line: #bbb;
+  --line-strong: #999;
+  --sheet: #fff;
+  --sheet-2: #f3f3f3;
+}
+@media print {
+  @page {
+    margin: 10mm;
+  }
+  .no-print {
+    display: none !important;
+  }
+  html body,
+  #root {
+    background: #fff !important;
+    height: auto !important;
+  }
+  .paper {
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0 !important;
+  }
+}
+
+/* "To every direction": the sun's colours, morning yellow to evening red. */
+.sun-text {
+  background: linear-gradient(100deg, #ffd66b 0%, #ffa133 38%, #ff7a1f 66%, #f2541b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}

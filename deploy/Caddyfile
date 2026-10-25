@@ -1,0 +1,8 @@
+# HTTPS in front of the Surajlogistic frontend. Caddy gets and renews a free certificate
+# for DOMAIN by itself and sends plain http:// visitors to https://.
+# DOMAIN must already point at this server (a DNS "A" record) before you start it.
+{$DOMAIN} {
+	encode zstd gzip
+	header Strict-Transport-Security "max-age=31536000"
+	reverse_proxy frontend:80
+}

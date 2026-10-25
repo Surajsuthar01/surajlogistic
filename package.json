@@ -2,21 +2,24 @@
   "name": "surajlogistic",
   "private": true,
   "version": "0.1.0",
-  "description": "SurajLogistic — one platform for trucking, courier, freight marketplace and warehousing, with an AI control tower.",
+  "description": "Surajlogistic: road transport platform. backend/ is the API (Fastify + PostgreSQL), frontend/ is the website and apps (React), shared/ holds the rules both use (pricing, statuses, routes).",
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "shared",
+    "backend",
+    "frontend"
   ],
   "scripts": {
-    "dev": "npm run dev:api & npm run dev:web",
-    "dev:api": "npm run dev -w @suraj/api",
-    "dev:web": "npm run dev -w @suraj/web",
-    "build": "npm run build -w @suraj/web",
-    "build:demo": "npm run build:demo -w @suraj/web",
-    "test": "npm test -w @suraj/core && npm test -w @suraj/api",
-    "typecheck": "npm run typecheck -w @suraj/core && npm run typecheck -w @suraj/api && npm run typecheck -w @suraj/web",
-    "seed": "npm run seed -w @suraj/api",
-    "db:generate": "npm run db:generate -w @suraj/api"
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "dev:backend": "npm run dev -w @suraj/backend",
+    "dev:frontend": "npm run dev -w @suraj/frontend",
+    "build": "npm run build -w @suraj/backend && npm run build -w @suraj/frontend",
+    "build:frontend": "npm run build -w @suraj/frontend",
+    "build:backend": "npm run build -w @suraj/backend",
+    "build:demo": "npm run build:demo -w @suraj/frontend",
+    "test": "npm test -w @suraj/shared && npm test -w @suraj/backend",
+    "typecheck": "npm run typecheck -w @suraj/shared && npm run typecheck -w @suraj/backend && npm run typecheck -w @suraj/frontend",
+    "seed": "npm run seed -w @suraj/backend",
+    "db:generate": "npm run db:generate -w @suraj/backend"
   },
   "engines": {
     "node": ">=20"

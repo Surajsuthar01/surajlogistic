@@ -1,0 +1,91 @@
+# Surajlogistic frontend server. At container start nginx fills in ${BACKEND_URL}
+# and ${NGINX_RESOLVER} from the environment (see frontend/Dockerfile).
+
+server_tokens off;
+
+gzip on;
+gzip_vary on;
+gzip_min_length 1024;
+gzip_types text/plain text/css application/javascript application/json image/svg+xml application/manifest+json;
+
+# The real visitor address when HTTPS (Caddy) or a load balancer sits in front of this server.
+set_real_ip_from 10.0.0.0/8;
+set_real_ip_from 172.16.0.0/12;
+set_real_ip_from 192.168.0.0/16;
+real_ip_header X-Forwarded-For;
+real_ip_recursive on;
+
+map $http_x_forwarded_proto $forwarded_proto {
+  default $http_x_forwarded_proto;
+  ''      $scheme;
+}
+
+server {
+  # IPv4 only: Docker networks have IPv6 switched off unless you turn it on.
+  listen 80;
+  server_name _;
+  root /usr/share/nginx/html;
+  index index.html;
+  client_max_body_size 8m;
+
+  # Look the backend up again when it restarts, instead of once at start.
+  resolver ${NGINX_RESOLVER} valid=10s ipv6=off;
+  set $backend ${BACKEND_URL};
+
+  include /etc/nginx/snippets/security-headers.conf;
+
+  location = /healthz {
+    access_log off;
+    default_type text/plain;
+    return 200 "ok\n";
+  }
+
+  # Live control-tower feed: no buffering, long timeout. Its address carries the login
+  # token (browsers cannot send headers here), so it stays out of the access log.
+  location = /api/stream {
+    access_log off;
+    proxy_pass $backend;
+    proxy_http_version 1.1;
+    proxy_set_header Connection '';
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $forwarded_proto;
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_read_timeout 1h;
+  }
+
+  location /api/ {
+    proxy_pass $backend;
+    proxy_http_version 1.1;
+    proxy_set_header Connection '';
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $forwarded_proto;
+    proxy_read_timeout 120s;
+  }
+
+  # The service worker and manifest must always be fresh, or updates never reach phones.
+  location = /sw.js {
+    add_header Cache-Control "no-cache";
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+  location = /manifest.webmanifest {
+    add_header Cache-Control "no-cache";
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+
+  # Built files carry a content hash in their name: cache them for a year.
+  location /assets/ {
+    try_files $uri =404;
+    add_header Cache-Control "public, max-age=31536000, immutable";
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+
+  # Single-page app: every other address is the React app (e.g. /track/SL...).
+  location / {
+    try_files $uri /index.html;
+    add_header Cache-Control "no-cache";
+    include /etc/nginx/snippets/security-headers.conf;
+  }
+}
